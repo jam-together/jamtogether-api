@@ -127,7 +127,7 @@ export default class Rooms {
         return room;
     }
 
-    public async join(room: IRoom, clientId: string, me?: IMe): Promise<IRoom> {
+    public async join(room: IRoom, clientId: string, me?: IMe, displayName: string): Promise<IRoom> {
         const hasAlreadyThisMember = room.members.findIndex(({id}) => id === me?.clientId) !== -1;
         // if member is not connected or the room that he's trying to get connect is different than his room
         let member: IRoomMember;
@@ -135,7 +135,7 @@ export default class Rooms {
         if(!me || me.roomId !== room.id || !hasAlreadyThisMember) {
             member = {
                 id: clientId, 
-                displayName: "User " + (room.members.length+1),
+                displayName,
                 isConnected: true
             };
             await this.update(room.id, {

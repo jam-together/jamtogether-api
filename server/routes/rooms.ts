@@ -115,17 +115,8 @@ export default (fastify: FastifyInstance) => {
                 const player = await room?.service.getPlayer();
                 const { currentPlaying, queue } = await room?.service.getQueue()!;
                 const {token: _, service, ownerId, ...r}: any = room;
-
-                const clientId = request.dataSources.rooms.generateClientId()
-                const accessToken = await request.dataSources.rooms.generateAccessToken({
-                    roomId: r.id,
-                    clientId
-                });
-
-                await request.dataSources.rooms.join(room!, clientId, request.me)
                 
                 reply.status(200).send({
-                    accessToken,
                     room: { 
                         ...r, 
                         queue, 
@@ -133,6 +124,58 @@ export default (fastify: FastifyInstance) => {
                         player
                     } 
                 });
+            } catch(e) {
+                const error = e as Error;
+                reply.status(500).send({ message: error.message, stack: error.stack });
+            }
+        }
+    });
+
+    fastify.post("/join/:id", {
+        schema: {
+            params: {
+                type: "object",
+                required: ["id"],
+                properties: {
+                    id: { type: "string", minLength: 1 }
+                },
+                additionalProperties: false
+            },
+            body: {
+                type: "object",
+                required: ["name"],
+                properties: {
+                    name: {
+                        type: "string",
+                        minLength: 1,
+                    },
+                    additionalProperties: false
+                }
+            }
+        },
+        handler: async (request: FastifyRequest, reply: FastifyReply) => {
+            try {
+                const { id } = request.params as {id: string;}; 
+                const { name } = request.body as {name: string;};
+
+                const room = await request.dataSources.rooms.get(id);
+                if(!room) {
+                    return reply.status(404).send({ message: "Room not found or expired." });
+                }
+                const {token: _, service, ownerId, ...r}: any = room;
+
+                const clientId = request.dataSources.rooms.generateClientId();
+                const accessToken = await request.dataSources.rooms.generateAccessToken({
+                    roomId: r.id,
+                    clientId
+                });
+
+                await request.dataSources.rooms.join(room!, clientId, request.me, name);
+                
+                reply.status(200).send({
+                    accessToken
+                });
+                
             } catch(e) {
                 const error = e as Error;
                 reply.status(500).send({ message: error.message, stack: error.stack });
