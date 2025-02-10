@@ -6,7 +6,7 @@ services:
       context: ..
       dockerfile: .devcontainer/Dockerfile
     volumes:
-      - ..:/app
+      - ..:/usr/src/app
     environment:
       REDIS_PORT: 6379
       REDIS_HOST: redis
