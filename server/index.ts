@@ -62,7 +62,7 @@ try {
     await redis.connect();
     console.log(`Connected to redis ! ✅`);
 
-    await redisDeleteAll("room:*"); // delete all rooms
+    //await redisDeleteAll("room:*"); // delete all rooms
     logger.info(`Cleaned all rooms from redis`);
 
     websocket(fastify);

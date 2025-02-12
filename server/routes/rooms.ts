@@ -159,7 +159,6 @@ export default (fastify: FastifyInstance) => {
       },
       body: {
         type: "object",
-        required: ["name"],
         properties: {
           name: {
             type: "string",
@@ -180,7 +179,11 @@ export default (fastify: FastifyInstance) => {
             .status(404)
             .send({ message: "Room not found or expired." });
         }
+
+        const player = await room?.service.getPlayer();
+        const { currentPlaying, queue } = await room?.service.getQueue()!;
         const { token: _, service, ownerId, ...r }: any = room;
+
 
         const clientId = request.dataSources.rooms.generateClientId();
         const accessToken = await request.dataSources.rooms.generateAccessToken(
@@ -194,7 +197,12 @@ export default (fastify: FastifyInstance) => {
 
         reply.status(200).send({
           accessToken,
-          room: r,
+          room: {
+            ...r,
+            queue,
+            currentPlaying,
+            player,
+          },
         });
       } catch (e) {
         const error = e as Error;
