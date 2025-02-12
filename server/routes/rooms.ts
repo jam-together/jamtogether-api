@@ -130,7 +130,7 @@ export default (fastify: FastifyInstance) => {
 
         const player = await room?.service.getPlayer();
         const { currentPlaying, queue } = await room?.service.getQueue()!;
-        const { token: _, service, ownerId, ...r }: any = room;
+        const { token: _, service, ...r }: any = room;
 
         reply.status(200).send({
           room: {
@@ -182,8 +182,7 @@ export default (fastify: FastifyInstance) => {
 
         const player = await room?.service.getPlayer();
         const { currentPlaying, queue } = await room?.service.getQueue()!;
-        const { token: _, service, ownerId, ...r }: any = room;
-
+        const { token: _, service, ...r }: any = room;
 
         const clientId = request.dataSources.rooms.generateClientId();
         const accessToken = await request.dataSources.rooms.generateAccessToken(
